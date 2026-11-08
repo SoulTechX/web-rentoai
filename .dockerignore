@@ -1,0 +1,8 @@
+node_modules
+.next
+.git
+.gitignore
+README.md
+assets
+whisk_flow_kit.md
+implementation_plan.md
