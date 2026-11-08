@@ -15,6 +15,8 @@ import {
   Percent,
   Clock,
   Database,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import RentoStack3D, { RENTO_STACK_LAYERS } from "./RentoStack3D";
 
@@ -218,11 +220,226 @@ export default function FourLayersScrollytelling() {
           </p>
         </div>
 
-        {/* Sticky Scrollytelling 12-Col Layout (Exact choreography of sec_12.png) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-start">
-          {/* ================================================================
-              LEFT STICKY COLUMN: Exploded 4-Layer 3D Stack
-              ================================================================ */}
+        {/* ================================================================
+            MOBILE INTERACTIVE 4-LAYER EXPERIENCE (lg:hidden)
+            Solves the problem where 3D was scrolled away and lost on mobile.
+            ================================================================ */}
+        <div className="lg:hidden space-y-6">
+          {/* Mobile Sticky Control Dock */}
+          <div className="sticky top-20 z-30 bg-[#06080B]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-[0_12px_40px_rgba(0,0,0,0.85)]">
+            <div className="flex items-center justify-between px-1 pb-2.5 text-[10px] font-mono-tech text-slate-400 border-b border-white/[0.06] mb-2.5">
+              <span className="flex items-center gap-1.5 text-white">
+                <Layers className="w-3.5 h-3.5 text-[#00B7D1]" />
+                <span>CAPA 0{activeLayer + 1} DE 04</span>
+              </span>
+              <span
+                className="font-semibold tracking-wider uppercase text-[11px]"
+                style={{ color: RENTO_STACK_LAYERS[activeLayer]?.accentHex }}
+              >
+                {RENTO_STACK_LAYERS[activeLayer]?.code}
+              </span>
+            </div>
+
+            {/* 4 Quick Tabs with colored active indicators */}
+            <div className="grid grid-cols-4 gap-1.5">
+              {RENTO_STACK_LAYERS.map((layer, idx) => {
+                const isActive = activeLayer === idx;
+                const shortNames = ["Ventas", "Soporte", "Finanzas", "Dueño"];
+                return (
+                  <button
+                    key={layer.id}
+                    type="button"
+                    onClick={() => setActiveLayer(idx)}
+                    className={`py-2 px-1 rounded-xl text-center text-[10px] font-mono-tech transition-all flex flex-col items-center justify-center gap-1 border ${
+                      isActive
+                        ? "bg-white/10 text-white border-white/30 shadow-[0_0_15px_rgba(0,183,209,0.2)]"
+                        : "bg-white/[0.02] text-slate-400 border-transparent hover:text-slate-200"
+                    }`}
+                  >
+                    <span
+                      className="w-2 h-2 rounded-full transition-transform"
+                      style={{
+                        backgroundColor: layer.accentHex,
+                        transform: isActive ? "scale(1.25)" : "scale(1)",
+                        boxShadow: isActive ? `0 0 8px ${layer.accentHex}` : "none",
+                      }}
+                    />
+                    <span className="truncate max-w-full text-[10px] font-medium uppercase tracking-tight">
+                      {shortNames[idx]}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3D Exploded Viewer Stage for Mobile */}
+          <div className="w-full rounded-[28px] bg-gradient-to-b from-[#0A0E14] to-[#06080B] border border-white/[0.08] p-4 flex flex-col items-center relative overflow-hidden">
+            <div className="pt-6 pb-14 w-full flex items-center justify-center">
+              <RentoStack3D
+                mode="exploded"
+                activeLayer={activeLayer}
+                onSelectLayer={(idx) => setActiveLayer(idx)}
+                className="scale-85 sm:scale-95"
+              />
+            </div>
+
+            {/* Prev / Next controls for one-handed mobile navigation */}
+            <div className="w-full flex items-center justify-between pt-3 border-t border-white/[0.06] text-xs font-mono-tech">
+              <button
+                type="button"
+                onClick={() => setActiveLayer((prev) => (prev > 0 ? prev - 1 : 3))}
+                className="px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-slate-300 hover:text-white flex items-center gap-1 active:scale-95 transition-transform"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Anterior</span>
+              </button>
+
+              {/* Step indicator pill dots */}
+              <div className="flex items-center gap-1.5">
+                {[0, 1, 2, 3].map((dotIdx) => {
+                  const isCurrent = activeLayer === dotIdx;
+                  return (
+                    <button
+                      key={dotIdx}
+                      type="button"
+                      onClick={() => setActiveLayer(dotIdx)}
+                      className="p-1 cursor-pointer focus:outline-none"
+                      aria-label={`Ir a capa 0${dotIdx + 1}`}
+                    >
+                      <span
+                        className={`block h-1.5 rounded-full transition-all duration-300 ${
+                          isCurrent
+                            ? "w-5"
+                            : "w-1.5 bg-white/20 hover:bg-white/40"
+                        }`}
+                        style={{
+                          backgroundColor: isCurrent
+                            ? RENTO_STACK_LAYERS[dotIdx].accentHex
+                            : undefined,
+                        }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveLayer((prev) => (prev < 3 ? prev + 1 : 0))}
+                className="px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-slate-300 hover:text-white flex items-center gap-1 active:scale-95 transition-transform"
+              >
+                <span>Siguiente</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Active Layer Content Card for Mobile */}
+          {(() => {
+            const vault = LAYER_VAULTS[activeLayer];
+            return (
+              <div
+                key={vault.code}
+                className="rounded-[28px] bg-[#0A0E14]/80 border border-white/[0.08] p-5 sm:p-6 space-y-6 transition-all duration-300"
+              >
+                <div>
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <span
+                      className="w-3 h-1.5 rounded-full"
+                      style={{ backgroundColor: vault.accentHex }}
+                    />
+                    <span className="text-[11px] font-mono-tech uppercase tracking-[0.16em] text-slate-300">
+                      {vault.code} · CAPA 0{activeLayer + 1}
+                    </span>
+                  </div>
+
+                  <h3 className="font-display text-2xl sm:text-3xl text-white font-semibold tracking-[-0.03em] leading-[1.15]">
+                    {vault.title}{" "}
+                    <span
+                      className="font-serif-accent font-normal"
+                      style={{ color: vault.accentHex }}
+                    >
+                      {vault.italicWord}
+                    </span>
+                  </h3>
+
+                  <p className="mt-2.5 text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    {vault.description}
+                  </p>
+                </div>
+
+                {/* 3 Metric Rows */}
+                <div className="strata-shell space-y-2">
+                  {vault.stats.map((st) => {
+                    const StIcon = st.icon;
+                    return (
+                      <div
+                        key={st.label}
+                        className="strata-vault-card px-4 py-3 flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-6 h-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                            <StIcon
+                              className="w-3 h-3"
+                              style={{ color: vault.accentHex }}
+                            />
+                          </div>
+                          <span className="text-[10px] font-mono-tech uppercase tracking-wider text-slate-400">
+                            {st.label}
+                          </span>
+                        </div>
+                        <span className="font-display text-sm font-semibold text-white">
+                          {st.value}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* WhatsApp Chat Simulation Snippet */}
+                <div
+                  className={`rounded-2xl p-4 space-y-3 bg-[#06080B] border ${vault.accentBorder}`}
+                >
+                  <div className="flex items-center justify-between text-[10px] font-mono-tech text-slate-400">
+                    <span>{vault.chat.roleLabel}</span>
+                    <span className={vault.accentText}>{vault.chat.aiBadge}</span>
+                  </div>
+
+                  <div className="p-3 rounded-xl rounded-tr-none bg-white/[0.04] border border-white/[0.07] text-xs text-slate-200 ml-4">
+                    {vault.chat.incoming}
+                  </div>
+
+                  <div className="p-3 rounded-xl rounded-tl-none bg-[#07121A] border border-white/[0.1] text-xs text-slate-100 mr-2 flex items-start gap-2.5">
+                    <div className="relative w-4 h-4 shrink-0 mt-0.5">
+                      <Image
+                        src="/brand/rentoai-symbol-transparent.png"
+                        alt="RentoAI"
+                        fill
+                        sizes="16px"
+                        className="object-contain"
+                      />
+                    </div>
+                    <p className="leading-relaxed">{vault.chat.aiResponse}</p>
+                  </div>
+
+                  <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-[10px] font-mono-tech text-slate-400">
+                    <span className="text-[9px] truncate max-w-[240px]">
+                      {vault.chat.dispatchNote}
+                    </span>
+                    <CheckCheck className={`w-3.5 h-3.5 shrink-0 ${vault.accentText}`} />
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* ================================================================
+            DESKTOP STICKY SCROLLYTELLING 12-COL LAYOUT (hidden lg:grid)
+            ================================================================ */}
+        <div className="hidden lg:grid grid-cols-12 gap-14 items-start">
+          {/* LEFT STICKY COLUMN: Exploded 4-Layer 3D Stack */}
           <div className="lg:col-span-5 lg:sticky lg:top-28 flex flex-col items-center">
             <div className="w-full rounded-[32px] bg-[#080C12]/80 border border-white/[0.07] p-6 sm:p-8 flex flex-col items-center relative overflow-hidden">
               {/* Top live layer indicator */}

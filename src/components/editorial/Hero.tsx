@@ -128,6 +128,46 @@ export default function Hero() {
                   <span>Explorar las 4 capas</span>
                 </a>
               </div>
+
+              {/* MOBILE 3D STACK HERO PREVIEW (lg:hidden) */}
+              <div className="lg:hidden my-6 p-4 rounded-3xl bg-[#080C12]/80 border border-white/[0.08] flex flex-col items-center justify-center">
+                <div className="py-2 flex items-center justify-center w-full">
+                  <RentoStack3D
+                    mode="hero"
+                    activeLayer={hoveredLayer}
+                    scrollSpread={scrollSpread}
+                    onSelectLayer={(idx) =>
+                      setHoveredLayer((prev) => (prev === idx ? null : idx))
+                    }
+                    className="scale-80 sm:scale-90"
+                  />
+                </div>
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+                  {RENTO_STACK_LAYERS.map((layer, idx) => {
+                    const isActive = hoveredLayer === idx;
+                    return (
+                      <button
+                        key={layer.id}
+                        type="button"
+                        onClick={() =>
+                          setHoveredLayer((prev) => (prev === idx ? null : idx))
+                        }
+                        className={`px-2.5 py-1 rounded-full text-[9px] font-mono-tech transition-all border flex items-center gap-1.5 ${
+                          isActive
+                            ? "bg-white/10 text-white border-white/30"
+                            : "bg-[#0A0E14]/80 text-slate-400 border-white/[0.07]"
+                        }`}
+                      >
+                        <span
+                          className="w-1.5 h-1.5 rounded-full"
+                          style={{ backgroundColor: layer.accentHex }}
+                        />
+                        <span>{layer.code}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* Part 2: Double-Framed 2x2 Bento Vault Grid */}
@@ -197,8 +237,8 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Sticky 3D 4-Layer RentoAI Stack */}
-          <div className="lg:col-span-5 lg:sticky lg:top-28 flex flex-col items-center justify-center pt-4 lg:pt-12">
+          {/* RIGHT COLUMN: Sticky 3D 4-Layer RentoAI Stack (hidden on mobile, shown on desktop) */}
+          <div className="hidden lg:flex lg:col-span-5 lg:sticky lg:top-28 flex-col items-center justify-center pt-4 lg:pt-12">
             <div className="w-full rounded-[32px] p-6 sm:p-8 flex flex-col items-center justify-center relative">
               <RentoStack3D
                 mode="hero"
