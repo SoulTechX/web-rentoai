@@ -14,6 +14,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV OUTPUT_MODE=standalone
 
 RUN npm run build
 
