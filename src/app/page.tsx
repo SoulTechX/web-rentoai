@@ -41,8 +41,8 @@ export default function Home() {
         {/* 8. Bóveda de Seguridad y Ley 25.326 con Diagramas Vectoriales Luminosos (00:21–00:23) */}
         <SecurityPrivacy />
 
-        {/* 9. Transparencia Editorial (Placeholders [TODO] auditados) */}
-        <ResultsAndEvidence />
+        {/* 9. Transparencia Editorial (Oculto temporalmente hasta tener testimonios reales auditados) */}
+        {/* <ResultsAndEvidence /> */}
 
         {/* 10. Planes y Cotización */}
         <PricingQuote />
